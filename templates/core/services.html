@@ -1,0 +1,677 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<script>window.scrollTo(0, 0);</script>
+
+<div class="service-page-wrapper">
+    <div class="container py-3 py-md-4">
+        <div class="text-center mb-3 mb-md-4" data-aos="fade-down">
+            <h1 class="display-6 fw-bold uppercase italic text-dark tracking-tighter">Our <span
+                    class="text-primary">Services</span></h1>
+            <p class="text-muted fw-bold text-uppercase small tracking-widest" style="font-size: 0.7rem;">Professional
+                Grade Printing & Binding Hub</p>
+        </div>
+
+        <div class="row justify-content-center mb-3 mb-md-4" data-aos="fade-up">
+            <div class="col-12 col-xl-11">
+                <div
+                    class="bg-white p-1 p-md-2 rounded-4 shadow-sm d-flex flex-wrap justify-content-center gap-1 gap-md-2 border">
+                    <button id="tab-Printing" onclick="selectService(this, 'Printing', '#0d6efd', 'fa-print')"
+                        class="btn service-tab active-tab text-uppercase fw-bold py-1 px-2 px-md-3 rounded-3 border-0">
+                        <i class="fas fa-print me-1"></i> Printing
+                    </button>
+                    <button id="tab-Spiral" onclick="selectService(this, 'Spiral Binding', '#6610f2', 'fa-book-open')"
+                        class="btn service-tab text-muted text-uppercase fw-bold py-1 px-2 px-md-3 rounded-3 border-0">
+                        <i class="fas fa-book-open me-1"></i> Spiral
+                    </button>
+                    <button id="tab-Soft" onclick="selectService(this, 'Soft Binding', '#d63384', 'fa-book')"
+                        class="btn service-tab text-muted text-uppercase fw-bold py-1 px-2 px-md-3 rounded-3 border-0">
+                        <i class="fas fa-book me-1"></i> Soft
+                    </button>
+                    <button id="tab-Custom" onclick="selectService(this, 'Custom Printing', '#fd7e14', 'fa-sliders-h')"
+                        class="btn service-tab text-muted text-uppercase fw-bold py-1 px-2 px-md-3 rounded-3 border-0">
+                        <i class="fas fa-sliders-h me-1"></i> Custom
+                    </button>
+
+                    <div class="position-relative">
+                        <button
+                            class="btn service-tab text-muted text-uppercase fw-bold py-1 px-2 px-md-3 rounded-3 border-0 opacity-50"
+                            style="cursor: help;" title="Launching Soon!">
+                            <i class="fas fa-graduation-cap me-1"></i> Thesis
+                        </button>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            style="font-size: 0.5rem; z-index: 10;">Soon</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center" data-aos="zoom-in">
+            <div class="col-12 col-xl-10">
+                <div id="form-container"
+                    class="bg-white rounded-5 shadow-lg overflow-hidden border-top border-5 transition-all"
+                    style="border-top-color: #0d6efd !important;">
+                    <div class="p-3 p-md-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                            <div class="d-flex align-items-center gap-2 gap-md-3">
+                                <div id="form-icon-bg"
+                                    class="rounded-3 d-flex align-items-center justify-content-center text-white shadow-sm"
+                                    style="width: 35px; height: 35px; background-color: #0d6efd;">
+                                    <i id="form-icon" class="fas fa-print" style="font-size: 0.9rem;"></i>
+                                </div>
+                                <h2 id="form-title" class="h6 fw-bold text-uppercase italic mb-0"
+                                    style="color: #0d6efd;">Printing</h2>
+                            </div>
+                            <div id="page-count-badge" class="invisible">
+                                <div class="bg-primary text-white px-2 py-1 rounded-pill fw-bold shadow-sm animate-bounce"
+                                    style="font-size: 0.65rem;">
+                                    <i class="fas fa-copy me-1"></i> <span id="page-num-display">0</span> Pages (T)
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="order-form" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" id="is-user-authenticated"
+                                value="{{ user.is_authenticated|yesno:'true,false' }}">
+                            <input type="hidden" name="service_name" id="service_name_input" value="Printing">
+                            <input type="hidden" name="total_price_hidden" id="total_price_hidden" value="0">
+                            <input type="hidden" name="page_count" id="page_count_hidden" value="0">
+
+                            <div class="row g-3">
+                                <div class="col-lg-6">
+                                    <div class="row g-2">
+                                        <div class="col-md-6 col-6">
+                                            <label class="form-label mb-1 small fw-bold text-muted text-uppercase">Your
+                                                Name</label>
+                                            <input type="text" name="name" id="user_name" value="{{ user.first_name }}"
+                                                class="form-control form-control-sm bg-light border-0 rounded-3 fw-bold"
+                                                required>
+                                        </div>
+                                        <div class="col-md-6 col-6">
+                                            <label
+                                                class="form-label mb-1 small fw-bold text-muted text-uppercase">Mobile</label>
+                                            <input type="text" name="mobile_number" id="user_mobile"
+                                                value="{{ user.username }}"
+                                                class="form-control form-control-sm bg-light border-0 rounded-3 fw-bold"
+                                                required>
+                                        </div>
+
+                                        <div class="col-6" id="standard-type-container">
+                                            <label
+                                                class="form-label mb-1 small fw-bold text-muted text-uppercase">Type</label>
+                                            <select name="print_mode" id="print_type"
+                                                class="form-select form-select-sm bg-light border-0 rounded-3 fw-bold">
+                                                <option value="bw">Black & White</option>
+                                                <option value="color">Color</option>
+                                                <option value="custom_split">Custom Split</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-6 d-none" id="custom-layout-container">
+                                            <label
+                                                class="form-label mb-1 small fw-bold text-muted text-uppercase">Custom
+                                                Layout</label>
+                                            <select name="layout_type" id="layout_type"
+                                                class="form-select form-select-sm bg-light border-0 rounded-3 fw-bold">
+                                                <option value="1/4">1/4 Layout</option>
+                                                <option value="1/8">1/8 Layout</option>
+                                                <option value="1/9">1/9 Layout</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-6" id="side-type-container">
+                                            <label class="form-label mb-1 small fw-bold text-muted text-uppercase">Sides
+                                                (S)</label>
+                                            <select name="side_type" id="side_type"
+                                                class="form-select form-select-sm bg-light border-0 rounded-3 fw-bold">
+                                                <option value="single">Single Side</option>
+                                                <option value="double">Double Side</option>
+                                            </select>
+                                        </div>
+
+                                        <div id="custom-color-field" class="d-none mt-1">
+                                            <label
+                                                class="form-label mb-1 small fw-bold text-primary text-uppercase">Color
+                                                Pages</label>
+                                            <input type="text" name="custom_color_pages" id="custom_color_input"
+                                                placeholder="ex: 1,3,5-7"
+                                                class="form-control form-control-sm border-primary rounded-3 fw-bold">
+                                        </div>
+
+                                        <div class="col-6">
+                                            <label
+                                                class="form-label mb-1 small fw-bold text-muted text-uppercase">Copies</label>
+                                            <input type="number" name="copies" id="copies" value="1" min="1"
+                                                class="form-control form-control-sm bg-light border-0 rounded-3 fw-bold">
+                                        </div>
+
+                                        <div class="col-6">
+                                            <label
+                                                class="form-label mb-1 small fw-bold text-muted text-uppercase">Location</label>
+                                            <select name="location" id="location"
+                                                class="form-select form-select-sm bg-light border-0 rounded-3 fw-bold shadow-sm"
+                                                required>
+                                                <option value="" selected disabled>Select...</option>
+                                                {% for loc in locations %}
+                                                <option value="{{ loc.name }}">{{ loc.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 mt-2" id="dynamic-cost-card">
+                                            <div class="p-2 border rounded-3 bg-light shadow-sm"
+                                                style="font-size: 0.75rem;">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span class="text-muted">B&W Cost:</span>
+                                                    <span class="fw-bold" id="dynamic-bw-cost">₹0.00</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">Color Cost:</span>
+                                                    <span class="fw-bold text-primary"
+                                                        id="dynamic-color-cost">₹0.00</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <label
+                                        class="form-label mb-1 small fw-bold text-muted text-uppercase text-center w-100">Upload
+                                        PDF or Image</label>
+                                    <div class="upload-box position-relative bg-light rounded-4 border-dashed border-2 d-flex align-items-center justify-content-center overflow-hidden mx-auto"
+                                        style="height: 180px; width: 100%; max-width: 250px;">
+                                        <input type="file" name="document" id="document" class="d-none"
+                                            accept=".pdf,image/*" onclick="return checkLoginBeforeUpload(event)">
+
+                                        <label for="document" id="upload-ui"
+                                            class="text-center cursor-pointer p-2 w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                            <i class="fas fa-cloud-upload-alt fs-3 text-secondary mb-1"></i>
+                                            <p class="small fw-bold text-secondary text-uppercase mb-0"
+                                                style="font-size: 0.6rem;">Select File</p>
+                                        </label>
+
+                                        <div id="preview-wrapper"
+                                            class="d-none w-100 h-100 p-2 text-center position-relative">
+                                            <canvas id="pdf-preview-canvas"
+                                                class="d-none img-fluid rounded-3 shadow-sm border h-100 w-auto mx-auto"></canvas>
+                                            <img id="image-preview-tag"
+                                                class="d-none img-fluid rounded-3 shadow-sm border h-100 w-auto mx-auto"
+                                                style="object-fit: contain;">
+                                            <button type="button" onclick="resetUpload()"
+                                                class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1 shadow-sm"
+                                                style="padding: 1px 5px; font-size: 0.6rem;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3 g-0 rounded-4 overflow-hidden border">
+                                <div class="col-lg-6 p-3 p-md-4" style="background-color: #f5f7fa;">
+                                    <h6 class="fw-black text-secondary text-uppercase mb-1" style="font-size: 0.7rem;">
+                                        Rates Summary</h6>
+                                    <div class="row g-1 fw-bold text-uppercase" id="service-price-menu"
+                                        style="font-size: 0.75rem;"></div>
+                                    <div id="binding-summary-row"
+                                        class="mt-2 border-top border-secondary border-opacity-10 pt-2 d-none">
+                                        <div class="d-flex justify-content-between small fw-bold">
+                                            <span class="text-success" id="binding-label-text">Binding Cost:</span>
+                                            <span id="label-binding-cost">₹0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 p-3 p-md-4 d-flex flex-column justify-content-center align-items-end"
+                                    style="background-color: #eef2ff;">
+                                    <div class="text-end mb-3">
+                                        <p class="fw-bold text-muted text-uppercase mb-0" style="font-size: 0.7rem;">
+                                            Total Payable Amount</p>
+                                        <h2 class="fw-bold text-dark italic mb-0">₹<span id="price-display">0.00</span>
+                                        </h2>
+                                    </div>
+                                    <div class="d-flex gap-2 w-100 justify-content-end">
+                                        <button type="button" onclick="processCart(false)"
+                                            class="btn btn-3d btn-lg btn-outline-secondary fw-bold text-uppercase rounded-pill px-4 py-3"
+                                            style="font-size: 0.8rem; min-width: 140px;">
+                                            Add to Cart
+                                        </button>
+                                        <button type="button" onclick="processCart(true)"
+                                            class="btn btn-3d btn-lg btn-primary fw-bold text-uppercase rounded-pill px-5 py-3 shadow-lg border-0"
+                                            style="font-size: 0.85rem; min-width: 160px;">
+                                            Order Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .service-page-wrapper {
+        background-color: #f8f9fa;
+    }
+
+    .service-page-wrapper .service-tab {
+        font-size: 0.7rem;
+        transition: all 0.3s ease;
+    }
+
+    .service-page-wrapper .service-tab.active-tab {
+        color: white !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .service-page-wrapper .border-dashed {
+        border-style: dashed !important;
+        border-color: #dee2e6 !important;
+    }
+
+    .service-page-wrapper .animate-bounce {
+        animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-3px);
+        }
+    }
+
+    .service-page-wrapper .fw-black {
+        font-weight: 900;
+    }
+
+    .service-page-wrapper #pdf-preview-canvas,
+    .service-page-wrapper #image-preview-tag {
+        max-width: 100%;
+        max-height: 160px;
+        object-fit: contain;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let T = 0;
+    let currentService = "Printing";
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    // Dynamic pricing from PricingConfig (pre-calculated in view)
+    {% if price_vars %}
+    const PRICE_PER_PAGE_BW = {{ price_vars.price_bw }};
+    const PRICE_PER_PAGE_BW_DOUBLE = {{ price_vars.price_bw_double }};
+    const PRICE_PER_PAGE_COLOR = {{ price_vars.price_color }};
+    const PRICE_PER_PAGE_COLOR_DOUBLE = {{ price_vars.price_color_double }};
+    const SPIRAL_BINDING = {{ price_vars.spiral_binding }};
+    const SPIRAL_TIER2 = {{ price_vars.spiral_tier2 }};
+    const SPIRAL_TIER3 = {{ price_vars.spiral_tier3 }};
+    const SPIRAL_EXTRA = {{ price_vars.spiral_extra }};
+    const SOFT_BINDING = {{ price_vars.soft_binding }};
+    const CUSTOM_1_4 = {{ price_vars.custom_1_4 }};
+    const CUSTOM_1_8 = {{ price_vars.custom_1_8 }};
+    const CUSTOM_1_9 = {{ price_vars.custom_1_9 }};
+    const CUSTOM_1_8_DOUBLE = {{ price_vars.custom_1_8_double }};
+    const CUSTOM_1_9_DOUBLE = {{ price_vars.custom_1_9_double }};
+    {% else %}
+    // Fallback to default prices if not loaded
+    const PRICE_PER_PAGE_BW = 1.5;
+    const PRICE_PER_PAGE_BW_DOUBLE = 2.5;
+    const PRICE_PER_PAGE_COLOR = 8;
+    const PRICE_PER_PAGE_COLOR_DOUBLE = 13;
+    const SPIRAL_BINDING = 20;
+    const SPIRAL_TIER2 = 25;
+    const SPIRAL_TIER3 = 30;
+    const SPIRAL_EXTRA = 5;
+    const SOFT_BINDING = 30;
+    const CUSTOM_1_4 = 2.0;
+    const CUSTOM_1_8 = 4.0;
+    const CUSTOM_1_9 = 4.0;
+    {% endif %}
+
+    // NOTE: Color prices from panel already include correct full price per page
+    // No need to add B&W price to color price
+
+    const priceCards = {
+        "Printing": `<div class="col-6 text-muted">B&W: ₹${PRICE_PER_PAGE_BW}/p</div><div class="col-6 text-muted">BW(D): ₹${PRICE_PER_PAGE_BW_DOUBLE}/p</div><div class="col-6 text-primary">Color: ₹${PRICE_PER_PAGE_COLOR}/p</div><div class="col-6 text-primary">Color(D): ₹${PRICE_PER_PAGE_COLOR_DOUBLE}/p</div>`,
+        "Spiral Binding": `<div class="col-6 text-muted">1-40p: ₹${SPIRAL_BINDING}</div><div class="col-6 text-muted">41-60p: ₹${SPIRAL_TIER2}</div><div class="col-6 text-muted">61-90p: ₹${SPIRAL_TIER3}</div><div class="col-6 text-info">90+: +₹${SPIRAL_EXTRA}/20p</div>`,
+        "Soft Binding": `<div class="col-12 text-info text-center">Flat Binding: ₹${SOFT_BINDING}</div>`,
+        "Custom Printing": `<div class="col-6 text-muted">1/4: ₹${CUSTOM_1_4}/s</div><div class="col-6 text-muted">1/8: ₹${CUSTOM_1_8}/s</div><div class="col-6 text-muted">1/8(D): ₹${CUSTOM_1_8_DOUBLE}/s</div><div class="col-6 text-muted">1/9: ₹${CUSTOM_1_9}/s</div><div class="col-6 text-muted">1/9(D): ₹${CUSTOM_1_9_DOUBLE}/s</div>`,
+    };
+
+    // Debug: Log pricing to console
+    console.log('FastCopy Pricing Loaded:', {
+        bw: PRICE_PER_PAGE_BW,
+        bw_double: PRICE_PER_PAGE_BW_DOUBLE,
+        color: PRICE_PER_PAGE_COLOR,
+        color_double: PRICE_PER_PAGE_COLOR_DOUBLE,
+        spiral_tier1: SPIRAL_BINDING,
+        spiral_tier2: SPIRAL_TIER2,
+        spiral_tier3: SPIRAL_TIER3
+    });
+
+
+    function checkLoginBeforeUpload(event) {
+        const isAuth = $('#is-user-authenticated').val() === 'true';
+        if (!isAuth) {
+            event.preventDefault();
+            alert("Please login before uploading the document.");
+            window.location.href = "{% url 'login' %}?next=" + encodeURIComponent(window.location.pathname + window.location.hash);
+            return false;
+        }
+        return true;
+    }
+
+    function selectService(btn, name, color, iconClass) {
+        currentService = name;
+        $('.service-tab').removeClass('active-tab text-white').addClass('text-muted').css('background-color', '');
+        $(btn).addClass('active-tab text-white').removeClass('text-muted').css('background-color', color);
+        $('#form-container').css('border-top-color', color);
+        $('#form-icon-bg').css('background-color', color);
+        $('#form-icon').attr('class', 'fas ' + iconClass);
+        $('#form-title').text(name).css('color', color);
+        $('#service_name_input').val(name);
+        $('#service-price-menu').html(priceCards[name] || '');
+
+        if (name === "Custom Printing") {
+            $('#standard-type-container').addClass('d-none');
+            $('#custom-layout-container').removeClass('d-none');
+            $('#custom-color-field').addClass('d-none');
+            $('#side-type-container').removeClass('d-none');
+            handleNupRules();
+        } else {
+            $('#standard-type-container').removeClass('d-none');
+            $('#custom-layout-container').addClass('d-none');
+            $('#side-type-container').removeClass('d-none');
+            toggleSplitField();
+        }
+
+        if (["Spiral Binding", "Soft Binding"].includes(name)) {
+            $('#binding-summary-row').removeClass('d-none');
+            $('#binding-label-text').text(name.replace(" Binding", "") + " Cost:");
+        } else {
+            $('#binding-summary-row').addClass('d-none');
+        }
+        calculateFinalPrice();
+    }
+
+    function handleHashNavigation() {
+        const hash = window.location.hash;
+        if (hash === '#Printing') selectService($('#tab-Printing')[0], 'Printing', '#0d6efd', 'fa-print');
+        else if (hash === '#Spiral') selectService($('#tab-Spiral')[0], 'Spiral Binding', '#6610f2', 'fa-book-open');
+        else if (hash === '#Soft') selectService($('#tab-Soft')[0], 'Soft Binding', '#d63384', 'fa-book');
+        else if (hash === '#Custom') selectService($('#tab-Custom')[0], 'Custom Printing', '#fd7e14', 'fa-sliders-h');
+        else selectService($('#tab-Printing')[0], 'Printing', '#0d6efd', 'fa-print');
+
+        // Remove automatic scrolling on initial page load
+    }
+
+    function processCart(isDirectOrder) {
+        const isAuth = $('#is-user-authenticated').val() === 'true';
+        if (!isAuth) {
+            alert("Please login first.");
+            window.location.href = "{% url 'login' %}?next=" + encodeURIComponent(window.location.pathname + window.location.hash);
+            return;
+        }
+
+        if (!T || T === 0) {
+            alert("Please upload a PDF or Image file first!");
+            return;
+        }
+
+        const locationSelected = $('#location').val();
+        if (!locationSelected) {
+            alert("Please select your Campus Location.");
+            $('#location').focus();
+            return;
+        }
+
+        const copies = parseInt($('#copies').val()) || 1;
+        const totalVolume = T * copies;
+
+        if (isDirectOrder && totalVolume < 5) {
+            alert(`Minimum volume required: 5 total pages.\n\nYour selection: ${totalVolume} total pages.\n\nClick OK to add this file to your cart. You can combine it with other files later.`);
+            isDirectOrder = false;
+        }
+
+        let formData = new FormData($('#order-form')[0]);
+        formData.set('page_count', T);
+
+        let targetUrl = isDirectOrder ? "{% url 'order_now' %}" : "{% url 'add_to_cart' %}";
+
+        $.ajax({
+            url: targetUrl,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (isDirectOrder) {
+                    window.location.href = "{% url 'cart_checkout_summary' %}";
+                } else {
+                    window.location.href = "{% url 'cart' %}";
+                }
+            },
+            error: function () {
+                alert("An error occurred. Please try again.");
+            }
+        });
+    }
+
+    function handleNupRules() {
+        const L = $('#layout_type').val();
+
+        if (L === "1/4") {
+            // 1/4 page: Auto double-side, hide selector
+            $('#side_type').val('double');
+            $('#side-type-container').addClass('d-none');
+        }
+        else if (L === "1/8" || L === "1/9") {
+            // 1/8 and 1/9: Default to single-side, show selector
+            $('#side_type').val('single');
+            $('#side-type-container').removeClass('d-none');
+        }
+        else {
+            // Other layouts: Show selector
+            $('#side-type-container').removeClass('d-none');
+        }
+    }
+
+    function toggleSplitField() {
+        if (currentService !== "Custom Printing" && $('#print_type').val() === 'custom_split') {
+            $('#custom-color-field').removeClass('d-none');
+            $('#side_type').val('single');
+            $('#side-type-container').addClass('d-none');
+        } else {
+            $('#custom-color-field').addClass('d-none');
+            if (currentService !== "Custom Printing") {
+                $('#side-type-container').removeClass('d-none');
+            }
+        }
+    }
+
+    $('#layout_type').change(handleNupRules);
+    $('#print_type').change(toggleSplitField);
+
+    $('#document').change(function (e) {
+        let file = e.target.files[0];
+        if (!file) return;
+        $('#upload-ui').addClass('d-none');
+        $('#preview-wrapper').removeClass('d-none');
+
+        if (file.type === "application/pdf") {
+            $('#pdf-preview-canvas').removeClass('d-none');
+            $('#image-preview-tag').addClass('d-none');
+            let formData = new FormData();
+            formData.append('document', file);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            $.ajax({
+                url: "{% url 'calculate_pages' %}",
+                type: "POST", data: formData, processData: false, contentType: false,
+                success: function (res) {
+                    if (res.success) {
+                        T = res.pages;
+                        $('#page-num-display').text(T);
+                        $('#page_count_hidden').val(T);
+                        $('#page-count-badge').removeClass('invisible');
+                        calculateFinalPrice();
+                    }
+                }
+            });
+            let reader = new FileReader();
+            reader.onload = function () {
+                let typedarray = new Uint8Array(this.result);
+                pdfjsLib.getDocument(typedarray).promise.then(function (pdf) {
+                    pdf.getPage(1).then(function (page) {
+                        let viewport = page.getViewport({ scale: 0.6 });
+                        let canvas = document.getElementById('pdf-preview-canvas');
+                        let context = canvas.getContext('2d');
+                        canvas.height = viewport.height; canvas.width = viewport.width;
+                        page.render({ canvasContext: context, viewport: viewport });
+                    });
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        } else if (file.type.startsWith("image/")) {
+            $('#image-preview-tag').removeClass('d-none');
+            $('#pdf-preview-canvas').addClass('d-none');
+            T = 1;
+            $('#page-num-display').text(T);
+            $('#page_count_hidden').val(T);
+            $('#page-count-badge').removeClass('invisible');
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $('#image-preview-tag').attr('src', e.target.result);
+                calculateFinalPrice();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function resetUpload() {
+        $('#document').val(''); T = 0; $('#upload-ui').removeClass('d-none'); $('#preview-wrapper').addClass('d-none'); $('#page-count-badge').addClass('invisible'); calculateFinalPrice();
+    }
+
+    $('#print_type, #side_type, #copies, #custom_color_input, #layout_type').on('change input', calculateFinalPrice);
+
+    function calculateFinalPrice() {
+        const S = $('#side_type').val();
+        const P = $('#print_type').val();
+        const copies = parseInt($('#copies').val()) || 1;
+        let printingCostPerSet = 0;
+        let bwPart = 0, colorPart = 0;
+
+        if (currentService === "Custom Printing") {
+            const L = $('#layout_type').val();
+            let divisor = 4;
+            if (L === "1/8") divisor = 8;
+            if (L === "1/9") divisor = 9;
+            let sides = Math.ceil(T / divisor);
+
+            // Use dynamic custom print pricing
+            if (L === "1/4") {
+                printingCostPerSet = sides * CUSTOM_1_4;
+            } else {
+                if (S === 'double') {
+                    let sheets = Math.ceil(sides / 2);
+                    let rate = (L === "1/8") ? CUSTOM_1_8_DOUBLE : CUSTOM_1_9_DOUBLE;
+                    printingCostPerSet = sheets * rate;
+                } else {
+                    let rate = (L === "1/8") ? CUSTOM_1_8 : CUSTOM_1_9;
+                    printingCostPerSet = sides * rate;
+                }
+            }
+            bwPart = printingCostPerSet;
+        } else {
+            if (P === 'custom_split') {
+                const inputVal = $('#custom_color_input').val();
+                if (!inputVal) {
+                    printingCostPerSet = T * PRICE_PER_PAGE_BW;
+                    bwPart = printingCostPerSet;
+                } else {
+                    let pagesArray = inputVal.split(',').filter(x => x.trim() !== "");
+                    let uniquePages = new Set();
+                    let isInvalid = false;
+                    let invalidPageNum = 0;
+
+                    pagesArray.forEach(part => {
+                        if (part.includes('-')) {
+                            let range = part.split('-');
+                            let start = parseInt(range[0]), end = parseInt(range[1]);
+                            for (let i = Math.min(start, end); i <= Math.max(start, end); i++) {
+                                if (T > 0 && i > T) { isInvalid = true; invalidPageNum = i; }
+                                if (i >= 1 && (T === 0 || i <= T)) uniquePages.add(i);
+                            }
+                        } else {
+                            let num = parseInt(part);
+                            if (T > 0 && num > T) { isInvalid = true; invalidPageNum = num; }
+                            if (!isNaN(num) && num >= 1 && (T === 0 || num <= T)) uniquePages.add(num);
+                        }
+                    });
+
+                    if (T > 0 && isInvalid) {
+                        alert("Invalid Entry: Page " + invalidPageNum + " exceeds the total count of " + T + " pages in your PDF.");
+                        $('#custom_color_input').val("");
+                        calculateFinalPrice();
+                        return;
+                    }
+
+                    // Use only color price from configuration (not B&W + color)
+                    colorPart = uniquePages.size * PRICE_PER_PAGE_COLOR;
+                    bwPart = (T - uniquePages.size) * PRICE_PER_PAGE_BW;
+                    printingCostPerSet = colorPart + bwPart;
+                }
+            } else if (P === 'bw') {
+                printingCostPerSet = (S === 'single') ? (T * PRICE_PER_PAGE_BW) : (Math.ceil(T / 2) * PRICE_PER_PAGE_BW_DOUBLE); bwPart = printingCostPerSet;
+            } else if (P === 'color') {
+                // Use only color price from configuration (not B&W + color)
+                printingCostPerSet = (S === 'single') ? (T * PRICE_PER_PAGE_COLOR) : (Math.ceil(T / 2) * PRICE_PER_PAGE_COLOR_DOUBLE);
+                colorPart = printingCostPerSet;
+            }
+        }
+        $('#dynamic-bw-cost').text('₹' + (bwPart * copies).toFixed(2));
+        $('#dynamic-color-cost').text('₹' + (colorPart * copies).toFixed(2));
+        let totalPrinting = printingCostPerSet * copies;
+        let bindingCost = 0;
+        if (T > 0) {
+            if (currentService === "Spiral Binding") {
+                if (T <= 40) bindingCost = SPIRAL_BINDING;
+                else if (T <= 60) bindingCost = SPIRAL_BINDING + 5;
+                else if (T <= 90) bindingCost = SPIRAL_BINDING + 10;
+                else bindingCost = (SPIRAL_BINDING + 10) + (Math.ceil((T - 90) / 20) * 5);
+            }
+            else if (currentService === "Soft Binding") bindingCost = SOFT_BINDING;
+        }
+
+        $('#label-binding-cost').text('₹' + bindingCost.toFixed(2));
+        const grandTotal = totalPrinting + (bindingCost * copies);
+        $('#price-display').text(grandTotal.toFixed(2));
+        $('#total_price_hidden').val(Math.round(grandTotal));
+    }
+
+    $(document).ready(function () {
+        handleHashNavigation();
+        window.addEventListener('hashchange', function () {
+            handleHashNavigation();
+            // Scroll to form only if hash changes manually after load
+            $('html, body').animate({ scrollTop: $("#form-container").offset().top - 100 }, 500);
+        });
+    });
+</script>
+{% endblock %}

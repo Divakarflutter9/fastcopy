@@ -1,0 +1,20 @@
+# Django Framework
+Django>=5.0.0
+
+# Database Driver for MySQL
+mysqlclient
+
+# PDF Processing
+PyPDF2
+
+# API Requests (For PhonePe Handshake)
+requests
+
+# Environment Variable Management
+python-dotenv
+
+# Image Processing (Required for Django ImageField)
+Pillow
+
+# Security & Utilities
+cryptography
