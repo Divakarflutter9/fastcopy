@@ -14,13 +14,11 @@ from functools import wraps
 from datetime import datetime, timedelta
 from django.db.models import Q, Sum, Count
 
-<<<<<<< HEAD
+
 from django.utils import timezone
 from .models import Service, Order, UserProfile, CartItem, PricingConfig, Location, Coupon, PopupOffer
-=======
-from .models import Service, Order, UserProfile, CartItem, PricingConfig, Location, Coupon
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 from .utils import calculate_delivery_date
+
 from .notifications import send_all_order_notifications
 
 # --- 🚀 0. CORE LOGIC ENGINES (Success/Failure/Helper) ---
@@ -709,7 +707,18 @@ def initiate_payment(request):
                 del request.session['applied_coupon_code']
                 request.session.modified = True
     
-    callback_url = f"{request.scheme}://{request.get_host()}/payment/callback/"
+    # Handle callback URL based on environment
+    # Priority 1: Use explicitly configured website URL (for production/ngrok)
+    if hasattr(settings, 'COMPANY_WEBSITE') and settings.COMPANY_WEBSITE and 'localhost' not in settings.COMPANY_WEBSITE:
+        base_url = settings.COMPANY_WEBSITE.rstrip('/')
+        callback_url = f"{base_url}/payment/callback/"
+    # Priority 2: Localhost workaround (for development without ngrok)
+    elif 'localhost' in request.get_host() or '127.0.0.1' in request.get_host():
+        callback_url = "https://example.com/payment/callback/"
+    # Priority 3: Automatic host detection (fallback)
+    else:
+        callback_url = f"https://{request.get_host()}/payment/callback/"
+    
     user_mobile = request.user.profile.mobile if hasattr(request.user, 'profile') else "9999999999"
     if not user_mobile.startswith('91'): user_mobile = f"91{user_mobile}"
 
@@ -718,45 +727,50 @@ def initiate_payment(request):
         "customer_details": {"customer_id": f"CUST_{request.user.id}", "customer_name": request.user.username, "customer_email": request.user.email or "test@fastcopy.in", "customer_phone": user_mobile},
         "order_meta": {"return_url": callback_url, "notify_url": callback_url}
     }
-<<<<<<< HEAD
+
     headers = {"Content-Type": "application/json", "x-api-version": settings.CASHFREE_API_VERSION, "x-client-id": settings.CASHFREE_API_KEY, "x-client-secret": settings.CASHFREE_SECRET_KEY}
     
     try:
-        print(f"DEBUG: CASHFREE_API_URL = {settings.CASHFREE_API_URL}")
-        print(f"DEBUG: CASHFREE_API_KEY = {settings.CASHFREE_API_KEY[:10]}..." if settings.CASHFREE_API_KEY else "DEBUG: CASHFREE_API_KEY is None")
-        print(f"DEBUG: Payload = {payload}")
+        # Determine environment based on settings for logging
+        env_mode = 'Production' if settings.CASHFREE_MODE == 'LIVE' else 'Sandbox'
+        print(f"DEBUG: Initiating payment in {env_mode} mode")
         
         response = requests.post(f"{settings.CASHFREE_API_URL}/orders", json=payload, headers=headers)
-        print(f"DEBUG: Response status = {response.status_code}")
-        print(f"DEBUG: Response body = {response.text}")
+        print(f"DEBUG: Cashfree API Response status = {response.status_code}")
         
-=======
-    headers = {"Content-Type": "application/json", "x-api-version": settings.CASHFREE_API_VERSION, "x-client-id": settings.CASHFREE_APP_ID, "x-client-secret": settings.CASHFREE_SECRET_KEY}
-    
-    try:
-        response = requests.post(f"{settings.CASHFREE_API_URL}/orders", json=payload, headers=headers)
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
         res_json = response.json()
+        
+        # Check if API call was successful
         if response.status_code == 200 and res_json.get('payment_session_id'):
             request.session['cashfree_payment_session_id'] = res_json.get('payment_session_id')
             request.session['cashfree_order_id'] = unique_order_id
             request.session.modified = True
             return redirect('cashfree_checkout')
-<<<<<<< HEAD
         else:
+            # Show detailed error from Cashfree
+            error_msg = res_json.get('message', 'Unknown error')
+            error_type = res_json.get('type', '')
+            error_code = res_json.get('code', '')
+            
             print(f"ERROR: Cashfree API returned status {response.status_code}")
-            messages.error(request, f"Payment gateway error: {res_json.get('message', 'Unknown error')}")
+            print(f"ERROR: Cashfree response: {response.text}")
+            
+            # Show user-friendly error with details
+            detailed_error = f"Payment gateway error: {error_msg}"
+            if error_type or error_code:
+                detailed_error += f" (Code: {error_code}, Type: {error_type})"
+            
+            messages.error(request, detailed_error)
+            messages.info(request, "Please verify your Cashfree API credentials in .env file and ensure you're using TEST mode keys.")
             return redirect('cart')
     except Exception as e:
         print(f"EXCEPTION in initiate_payment: {str(e)}")
         import traceback
         traceback.print_exc()
-        messages.error(request, f"Payment error: {str(e)}")
+        messages.error(request, f"Payment system error: {str(e)}")
+        messages.info(request, "Please verify your Cashfree API credentials and internet connection.")
         return redirect('cart')
-=======
-        return redirect('cart')
-    except: return redirect('cart')
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
 
 @csrf_exempt
 def payment_callback(request):
@@ -778,11 +792,7 @@ def payment_callback(request):
     headers = {
         "Content-Type": "application/json",
         "x-api-version": settings.CASHFREE_API_VERSION,
-<<<<<<< HEAD
         "x-client-id": settings.CASHFREE_API_KEY,
-=======
-        "x-client-id": settings.CASHFREE_APP_ID,
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
         "x-client-secret": settings.CASHFREE_SECRET_KEY
     }
     
@@ -830,11 +840,24 @@ def payment_callback(request):
 
 @login_required(login_url='login')
 def cashfree_checkout(request):
-    context = {'payment_session_id': request.session.get('cashfree_payment_session_id'), 'cashfree_env': 'sandbox'}
+    payment_session_id = request.session.get('cashfree_payment_session_id')
+    
+    # Validate that payment session exists
+    if not payment_session_id:
+        messages.error(request, "Payment session not found. The payment request may have failed. Please check your .env file for correct Cashfree credentials.")
+        return redirect('cart')
+    
+    # Determine environment based on settings
+    env_mode = 'production' if settings.CASHFREE_MODE == 'LIVE' else 'sandbox'
+    
+    print(f"DEBUG: Rendering checkout with session {payment_session_id} in {env_mode} mode")
+    
+    context = {'payment_session_id': payment_session_id, 'cashfree_env': env_mode}
     return render(request, 'core/cashfree_checkout.html', context)
 
 # --- 🌐 5. STATIC PAGES ---
-<<<<<<< HEAD
+
+
 def home(request):
     # Fetch active popup offer
     now = timezone.now()
@@ -848,9 +871,7 @@ def home(request):
         'services': Service.objects.all()[:3],
         'popup_offer': active_offer
     })
-=======
-def home(request): return render(request, 'core/index.html', {'services': Service.objects.all()[:3]})
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
 
 def services_page(request):
     pricing = get_user_pricing(request.user) if request.user.is_authenticated else None
@@ -888,7 +909,7 @@ def services_page(request):
     return render(request, 'core/services.html', context)
 
 def about(request): return render(request, 'core/about.html')
-<<<<<<< HEAD
+
 
 def contact(request):
     if request.method == "POST":
@@ -941,9 +962,8 @@ This email was sent from the FastCopy contact form.
     
     return render(request, 'core/contact.html')
 
-=======
-def contact(request): return render(request, 'core/contact.html')
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
+
 def privacy_policy(request): return render(request, 'core/privacy_policy.html')
 def terms_conditions(request): return render(request, 'core/terms_conditions.html')
 
@@ -1001,7 +1021,7 @@ def dealer_dashboard_view(request):
             # Determine if it's single or double-sided
             is_double_sided = hasattr(order, 'side_type') and order.side_type == 'double'
             
-<<<<<<< HEAD
+
             # Check for custom split mode (some pages color, some B&W)
             if 'custom' in str(order.print_mode).lower() and 'split' in str(order.print_mode).lower():
                 from .utils import count_color_pages
@@ -1027,17 +1047,6 @@ def dealer_dashboard_view(request):
                 print_rate = pricing['price_per_page_double'] if is_double_sided else pricing['price_per_page']
                 cost = pages * copies * print_rate
 
-=======
-            # Determine print rate based on print mode and side type
-            if order.print_mode == 'color':
-                # Use ONLY color price from configuration (not B&W + color)
-                print_rate = pricing['color_addition_double'] if is_double_sided else pricing['color_addition']
-            else:
-                # Use B&W price for black and white prints
-                print_rate = pricing['price_per_page_double'] if is_double_sided else pricing['price_per_page']
-            
-            cost = pages * copies * print_rate
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
         
         if "Spiral" in order.service_name:
             t1, t2, t3 = pricing['spiral_tier1_limit'], pricing['spiral_tier2_limit'], pricing['spiral_tier3_limit']

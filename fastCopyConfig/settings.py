@@ -1,11 +1,6 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-<<<<<<< HEAD
-
-# Load environment variables from .env file
-=======
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 load_dotenv()
 
 # 1. BASE DIRECTORY 
@@ -14,7 +9,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 2. SECURITY SETTINGS
 SECRET_KEY = 'django-insecure-6zu4gfg3+vl-_*n8alvnmq#!kt-6+o9&r-w+$@0hzg76_50o9!'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['fastcopy.droptechie.com', 'www.fastcopy.droptechie.com', 'localhost', '127.0.0.1', '*']
+CSRF_TRUSTED_ORIGINS = ['https://fastcopy.droptechie.com', 'https://www.fastcopy.droptechie.com']
+
+CASHFREE_MODE = os.getenv("CASHFREE_MODE")
+
+if CASHFREE_MODE == "LIVE":
+    CASHFREE_API_URL = "https://api.cashfree.com/pg"
+else:
+    CASHFREE_API_URL = "https://sandbox.cashfree.com/pg"
 
 # --- 💳 CASHFREE PAYMENT GATEWAY CONFIG (Test Environment) ---
 CASHFREE_API_KEY = os.getenv("CASHFREE_API_KEY")
@@ -22,10 +25,7 @@ CASHFREE_SECRET_KEY = os.getenv("CASHFREE_SECRET_KEY")
 CASHFREE_API_VERSION = "2023-08-01"
 CASHFREE_API_URL = os.getenv("CASHFREE_API_URL")
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 # 3. APPLICATION DEFINITION
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -127,4 +127,4 @@ ADMIN_EMAIL = 'fastcopy003@gmail.com'
 SUPPORT_EMAIL = 'fastcopyteam@gmail.com'
 SUPPORT_PHONE = '+91 8500290959'
 COMPANY_NAME = 'FastCopy'
-COMPANY_WEBSITE = 'http://localhost:8000'  # Update with your actual domain when deployed
+COMPANY_WEBSITE = 'https://fastcopy.droptechie.com'

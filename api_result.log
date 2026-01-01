@@ -1,0 +1,31 @@
+Sending request to Cashfree...
+Status Code: 200
+Response Body:
+{
+  "cart_details": null,
+  "cf_order_id": "5132302118",
+  "created_at": "2026-01-01T13:30:09+05:30",
+  "customer_details": {
+    "customer_id": "CUST_TEST_001",
+    "customer_name": "Test User",
+    "customer_email": "test@example.com",
+    "customer_phone": "9999999999",
+    "customer_uid": null
+  },
+  "entity": "order",
+  "order_amount": 100.0,
+  "order_currency": "INR",
+  "order_expiry_time": "2026-01-31T13:30:09+05:30",
+  "order_id": "TEST_3d8932a9",
+  "order_meta": {
+    "return_url": "https://example.com/callback",
+    "notify_url": "https://example.com/callback",
+    "payment_methods": null
+  },
+  "order_note": null,
+  "order_splits": [],
+  "order_status": "ACTIVE",
+  "order_tags": null,
+  "payment_session_id": "session_CCn1Sk0xL9318UwCV5pe8ZFo1YSXXo0w6gsELaKxAGe_x7op5W62VnjDbDtLLZwPbEq44qARRdsj4hhUQNSuAXKgnYUtGQ8HmChHRzNLwZOgFdIQPn_nAY-MsJ36",
+  "terminal_data": null
+}

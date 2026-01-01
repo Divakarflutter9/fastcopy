@@ -74,7 +74,7 @@ def calculate_delivery_date(order_time=None):
     return delivery_date
 
 
-<<<<<<< HEAD
+
 def count_color_pages(page_range_string, total_pages):
     """
     Parse page range string and return count of color pages.
@@ -122,6 +122,4 @@ def count_color_pages(page_range_string, total_pages):
                 continue
     
     return len(color_pages_set)
-=======
 
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6

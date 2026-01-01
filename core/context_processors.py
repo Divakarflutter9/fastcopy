@@ -50,8 +50,4 @@ def site_context(request):
         'upcoming_holidays': upcoming_holidays,
         'marquee_date_early': date_before_8pm,
         'marquee_date_late': date_after_8pm,
-<<<<<<< HEAD
     }
-=======
-    }
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6

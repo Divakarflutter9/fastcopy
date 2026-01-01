@@ -57,7 +57,7 @@ def calculate_dealer_price_for_order(order):
         # Determine if it's single or double-sided
         is_double_sided = hasattr(order, 'side_type') and order.side_type == 'double'
         
-<<<<<<< HEAD
+
         # Check for custom split mode (some pages color, some B&W)
         if 'custom' in str(order.print_mode).lower() and 'split' in str(order.print_mode).lower():
             from .utils import count_color_pages
@@ -83,7 +83,7 @@ def calculate_dealer_price_for_order(order):
             print_rate = pricing['price_per_page_double'] if is_double_sided else pricing['price_per_page']
             cost = pages * copies * print_rate
 
-=======
+
         # Determine print rate based on print mode and side type
         if order.print_mode == 'color':
             # Use ONLY color price from configuration (not B&W + color)
@@ -93,7 +93,7 @@ def calculate_dealer_price_for_order(order):
             print_rate = pricing['price_per_page_double'] if is_double_sided else pricing['price_per_page']
         
         cost = pages * copies * print_rate
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
     
     # Add binding costs
     if "Spiral" in order.service_name:
@@ -179,12 +179,11 @@ def send_admin_order_alert(order):
         bool: True if email sent successfully, False otherwise
     """
     try:
-<<<<<<< HEAD
+
         print(f"DEBUG: Attempting to send admin email for order {order.order_id}")
         print(f"DEBUG: Admin email address: {settings.ADMIN_EMAIL}")
         
-=======
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
         customer = order.user
         customer_profile = UserProfile.objects.filter(user=customer).first()
         
@@ -200,11 +199,10 @@ def send_admin_order_alert(order):
             'admin_panel_url': f"{settings.COMPANY_WEBSITE}/admin/core/order/{order.id}/change/",
         }
         
-<<<<<<< HEAD
+
         print(f"DEBUG: Email context prepared for admin")
         
-=======
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
         # Render HTML email
         html_content = render_to_string('emails/admin_new_order.html', context)
         text_content = strip_tags(html_content)
@@ -213,12 +211,11 @@ def send_admin_order_alert(order):
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [settings.ADMIN_EMAIL]
         
-<<<<<<< HEAD
+
         print(f"DEBUG: Sending admin email from {from_email} to {recipient_list}")
         print(f"DEBUG: Subject: {subject}")
         
-=======
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
         # Create email with both HTML and plain text versions
         email = EmailMultiAlternatives(
             subject=subject,
@@ -230,21 +227,19 @@ def send_admin_order_alert(order):
         email.send()
         
         logger.info(f"Admin alert email sent to {settings.ADMIN_EMAIL} for order {order.order_id}")
-<<<<<<< HEAD
+
         print(f"SUCCESS: Admin email sent to {settings.ADMIN_EMAIL}")
-=======
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
         return True
         
     except Exception as e:
         logger.error(f"Failed to send admin alert email for order {order.order_id}: {str(e)}")
-<<<<<<< HEAD
+
         print(f"ERROR: Failed to send admin email for order {order.order_id}")
         print(f"ERROR Details: {str(e)}")
         import traceback
         traceback.print_exc()
-=======
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
         return False
 
 
@@ -397,8 +392,6 @@ def send_all_order_notifications(order):
     logger.info(f"Notification summary for order {order.order_id}: {results}")
     print(f"\n========== EMAIL NOTIFICATIONS COMPLETE ==========\n")
     
-<<<<<<< HEAD
+
     return results
-=======
-    return results
->>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
+
