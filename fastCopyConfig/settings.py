@@ -1,8 +1,11 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+<<<<<<< HEAD
 
 # Load environment variables from .env file
+=======
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 load_dotenv()
 
 # 1. BASE DIRECTORY 
@@ -19,7 +22,10 @@ CASHFREE_SECRET_KEY = os.getenv("CASHFREE_SECRET_KEY")
 CASHFREE_API_VERSION = "2023-08-01"
 CASHFREE_API_URL = os.getenv("CASHFREE_API_URL")
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 # 3. APPLICATION DEFINITION
 INSTALLED_APPS = [
     'django.contrib.admin',

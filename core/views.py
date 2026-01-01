@@ -14,8 +14,12 @@ from functools import wraps
 from datetime import datetime, timedelta
 from django.db.models import Q, Sum, Count
 
+<<<<<<< HEAD
 from django.utils import timezone
 from .models import Service, Order, UserProfile, CartItem, PricingConfig, Location, Coupon, PopupOffer
+=======
+from .models import Service, Order, UserProfile, CartItem, PricingConfig, Location, Coupon
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 from .utils import calculate_delivery_date
 from .notifications import send_all_order_notifications
 
@@ -714,6 +718,7 @@ def initiate_payment(request):
         "customer_details": {"customer_id": f"CUST_{request.user.id}", "customer_name": request.user.username, "customer_email": request.user.email or "test@fastcopy.in", "customer_phone": user_mobile},
         "order_meta": {"return_url": callback_url, "notify_url": callback_url}
     }
+<<<<<<< HEAD
     headers = {"Content-Type": "application/json", "x-api-version": settings.CASHFREE_API_VERSION, "x-client-id": settings.CASHFREE_API_KEY, "x-client-secret": settings.CASHFREE_SECRET_KEY}
     
     try:
@@ -725,12 +730,19 @@ def initiate_payment(request):
         print(f"DEBUG: Response status = {response.status_code}")
         print(f"DEBUG: Response body = {response.text}")
         
+=======
+    headers = {"Content-Type": "application/json", "x-api-version": settings.CASHFREE_API_VERSION, "x-client-id": settings.CASHFREE_APP_ID, "x-client-secret": settings.CASHFREE_SECRET_KEY}
+    
+    try:
+        response = requests.post(f"{settings.CASHFREE_API_URL}/orders", json=payload, headers=headers)
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
         res_json = response.json()
         if response.status_code == 200 and res_json.get('payment_session_id'):
             request.session['cashfree_payment_session_id'] = res_json.get('payment_session_id')
             request.session['cashfree_order_id'] = unique_order_id
             request.session.modified = True
             return redirect('cashfree_checkout')
+<<<<<<< HEAD
         else:
             print(f"ERROR: Cashfree API returned status {response.status_code}")
             messages.error(request, f"Payment gateway error: {res_json.get('message', 'Unknown error')}")
@@ -741,6 +753,10 @@ def initiate_payment(request):
         traceback.print_exc()
         messages.error(request, f"Payment error: {str(e)}")
         return redirect('cart')
+=======
+        return redirect('cart')
+    except: return redirect('cart')
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 
 @csrf_exempt
 def payment_callback(request):
@@ -762,7 +778,11 @@ def payment_callback(request):
     headers = {
         "Content-Type": "application/json",
         "x-api-version": settings.CASHFREE_API_VERSION,
+<<<<<<< HEAD
         "x-client-id": settings.CASHFREE_API_KEY,
+=======
+        "x-client-id": settings.CASHFREE_APP_ID,
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
         "x-client-secret": settings.CASHFREE_SECRET_KEY
     }
     
@@ -814,6 +834,7 @@ def cashfree_checkout(request):
     return render(request, 'core/cashfree_checkout.html', context)
 
 # --- 🌐 5. STATIC PAGES ---
+<<<<<<< HEAD
 def home(request):
     # Fetch active popup offer
     now = timezone.now()
@@ -827,6 +848,9 @@ def home(request):
         'services': Service.objects.all()[:3],
         'popup_offer': active_offer
     })
+=======
+def home(request): return render(request, 'core/index.html', {'services': Service.objects.all()[:3]})
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 
 def services_page(request):
     pricing = get_user_pricing(request.user) if request.user.is_authenticated else None
@@ -864,6 +888,7 @@ def services_page(request):
     return render(request, 'core/services.html', context)
 
 def about(request): return render(request, 'core/about.html')
+<<<<<<< HEAD
 
 def contact(request):
     if request.method == "POST":
@@ -916,6 +941,9 @@ This email was sent from the FastCopy contact form.
     
     return render(request, 'core/contact.html')
 
+=======
+def contact(request): return render(request, 'core/contact.html')
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 def privacy_policy(request): return render(request, 'core/privacy_policy.html')
 def terms_conditions(request): return render(request, 'core/terms_conditions.html')
 
@@ -973,6 +1001,7 @@ def dealer_dashboard_view(request):
             # Determine if it's single or double-sided
             is_double_sided = hasattr(order, 'side_type') and order.side_type == 'double'
             
+<<<<<<< HEAD
             # Check for custom split mode (some pages color, some B&W)
             if 'custom' in str(order.print_mode).lower() and 'split' in str(order.print_mode).lower():
                 from .utils import count_color_pages
@@ -998,6 +1027,17 @@ def dealer_dashboard_view(request):
                 print_rate = pricing['price_per_page_double'] if is_double_sided else pricing['price_per_page']
                 cost = pages * copies * print_rate
 
+=======
+            # Determine print rate based on print mode and side type
+            if order.print_mode == 'color':
+                # Use ONLY color price from configuration (not B&W + color)
+                print_rate = pricing['color_addition_double'] if is_double_sided else pricing['color_addition']
+            else:
+                # Use B&W price for black and white prints
+                print_rate = pricing['price_per_page_double'] if is_double_sided else pricing['price_per_page']
+            
+            cost = pages * copies * print_rate
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
         
         if "Spiral" in order.service_name:
             t1, t2, t3 = pricing['spiral_tier1_limit'], pricing['spiral_tier2_limit'], pricing['spiral_tier3_limit']

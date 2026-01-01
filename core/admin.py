@@ -5,7 +5,11 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
+<<<<<<< HEAD
 from .models import Service, Order, UserProfile, CartItem, PricingConfig, Location, PublicHoliday, Coupon, PopupOffer
+=======
+from .models import Service, Order, UserProfile, CartItem, PricingConfig, Location, PublicHoliday, Coupon
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
 
 # --- 🛠️ 1. CUSTOM ADMIN SITE SETUP ---
 class FastCopyAdminSite(admin.AdminSite):
@@ -321,6 +325,7 @@ class CouponAdmin(admin.ModelAdmin):
 admin_site.register(PublicHoliday)
 admin_site.register(Location)
 admin_site.register(User, UserAdmin)
+<<<<<<< HEAD
 admin_site.register(Group, GroupAdmin)
 
 
@@ -362,3 +367,6 @@ class PopupOfferAdmin(admin.ModelAdmin):
             return format_html('<span style="color: #be123c;">Expired</span>')
         else:
             return format_html('<span style="color: #15803d; font-weight: bold;">Matches Criteria</span>')
+=======
+admin_site.register(Group, GroupAdmin)
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6

@@ -442,6 +442,7 @@ class Coupon(models.Model):
     def increment_usage(self):
         """Increment usage count when coupon is used"""
         self.current_usage_count += 1
+<<<<<<< HEAD
         self.save()
 
 
@@ -464,3 +465,6 @@ class PopupOffer(models.Model):
         
     def __str__(self):
         return f"{self.title} ({'Active' if self.is_active else 'Inactive'})"
+=======
+        self.save()
+>>>>>>> 0afc99f50d603d22b0140b559ce2a9a6385d4fa6
