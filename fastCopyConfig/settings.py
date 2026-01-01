@@ -20,10 +20,10 @@ else:
     CASHFREE_API_URL = "https://sandbox.cashfree.com/pg"
 
 # --- 💳 CASHFREE PAYMENT GATEWAY CONFIG (Test Environment) ---
-CASHFREE_API_KEY = os.getenv("CASHFREE_API_KEY")
-CASHFREE_SECRET_KEY = os.getenv("CASHFREE_SECRET_KEY")
+CASHFREE_API_KEY = os.getenv("CASHFREE_API_KEY", "").strip()
+CASHFREE_SECRET_KEY = os.getenv("CASHFREE_SECRET_KEY", "").strip()
 CASHFREE_API_VERSION = "2023-08-01"
-CASHFREE_API_URL = os.getenv("CASHFREE_API_URL")
+
 
 
 # 3. APPLICATION DEFINITION

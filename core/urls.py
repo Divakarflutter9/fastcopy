@@ -1,8 +1,11 @@
 from django.urls import path
 from . import views
+from .debug_view import debug_payment
 
 urlpatterns = [
     # --- 🏠 Home & Static ---
+    path('debug-payment/', debug_payment, name='debug_payment'),
+    
     path('', views.home, name='home'),
     path('services/', views.services_page, name='services'),
     path('about/', views.about, name='about'),
